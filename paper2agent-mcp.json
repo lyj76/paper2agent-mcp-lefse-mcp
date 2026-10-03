@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 2,
+  "runtime": "pixi-fastmcp",
+  "platforms": ["linux-64"],
+  "entrypoint": {
+    "environment": "server",
+    "path": "server.py"
+  },
+  "resources": {
+    "minimumMemoryBytes": 1073741824,
+    "maximumMemoryBytes": 4294967296,
+    "minimumDiskBytes": 5368709120,
+    "minimumCpuCores": 1,
+    "gpuRequired": false
+  },
+  "environment": {
+    "manager": "pixi",
+    "manifest": "pixi.toml",
+    "lock": "pixi.lock",
+    "manifestSha256": "822a38e4e38297e8808c41c7a33a22b996aa6baf29d8929b509a7c68136c1220",
+    "lockSha256": "2d5cbd75220095426f653a62cd8f5a008f92794eff9533c3b20c190732db1dc6",
+    "environments": [
+      {
+        "name": "server",
+        "purpose": "LEfSe MCP 服务（命令行封装 + FastMCP）",
+        "probes": [
+          {
+            "pythonImports": ["fastmcp", "numpy", "scipy", "matplotlib"]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+[
+  "format_lefse_input",
+  "run_lefse_analysis",
+  "plot_lefse_lda",
+  "plot_lefse_cladogram",
+  "run_full_lefse_workflow"
+]

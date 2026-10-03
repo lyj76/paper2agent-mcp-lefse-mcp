@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "policy": "private-job-owned-workspaces",
+  "sourceMutation": false,
+  "temporaryFiles": "依赖、HOME、TMP、缓存和试验输出位于该任务私有目录；通过环境管理器回收。",
+  "buildDraft": "交付验收成功后由worker删除模型草稿。",
+  "auxiliaryEnvironments": "交付和运行接入成功后，worker封存历史验证证据并回收未被引用且已停止的本任务辅助环境；保留选定运行环境。",
+  "deletion": "显式删除MCP时回收本任务全部登记的环境和构建控制目录；保留不可复用UID审计记录。",
+  "cleanupExecutedAtFinalization": false
+}

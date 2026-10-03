@@ -1,0 +1,1 @@
+"""CLI wrapper package providing the LEfSe MCP tools."""

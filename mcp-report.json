@@ -1,0 +1,460 @@
+{
+  "schemaVersion": 1,
+  "language": "zh-CN",
+  "title": "LEfSe 差异微生物特征分析 MCP（Paper2MCP 转换）",
+  "summary": "基于 LEfSe 分析不同组别间的差异微生物特征，返回差异特征结果表（特征名、分类层级、富集组、统计检验 p 值与 LDA 效应量）并生成 LDA 效应量柱状图与分层进化树图（cladogram）",
+  "scope": {
+    "primaryTask": "基于 LEfSe 分析不同组别间的差异微生物特征，返回差异特征结果表（特征名、分类层级、富集组、统计检验 p 值与 LDA 效应量）并生成 LDA 效应量柱状图与分层进化树图（cladogram）",
+    "workflows": [
+      "lefse_diff_feature_analysis"
+    ],
+    "requiredOutputs": [
+      "差异特征结果表（含特征名、分类层级、富集组别、Kruskal-Wallis/Wilcoxon p 值、LDA 效应量）",
+      "LDA 效应量柱状图（PNG）",
+      "分类层级树图 cladogram（PNG）",
+      "分析参数与依赖版本记录",
+      "中文分析说明"
+    ]
+  },
+  "source": {
+    "repository": "https://github.com/SegataLab/lefse",
+    "sourcePaths": [
+      "lefse/lefse_format_input.py",
+      "lefse/lefse_run.py",
+      "lefse/lefse.py",
+      "lefse/lefse_plot_res.py",
+      "lefse/lefse_plot_cladogram.py",
+      "example/bioconda-lefse_run.sh"
+    ]
+  },
+  "runtime": {
+    "type": "pixi-fastmcp",
+    "entrypoint": "server.py",
+    "entryEnvironment": "server",
+    "environment": {
+      "manager": "pixi",
+      "manifest": "pixi.toml",
+      "lock": "pixi.lock",
+      "manifestSha256": "822a38e4e38297e8808c41c7a33a22b996aa6baf29d8929b509a7c68136c1220",
+      "lockSha256": "2d5cbd75220095426f653a62cd8f5a008f92794eff9533c3b20c190732db1dc6",
+      "environments": [
+        {
+          "name": "server",
+          "purpose": "LEfSe MCP 服务（命令行封装 + FastMCP）",
+          "probes": [
+            {
+              "pythonImports": [
+                "fastmcp",
+                "numpy",
+                "scipy",
+                "matplotlib"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "resources": {
+      "minimumMemoryBytes": 1073741824,
+      "maximumMemoryBytes": 4294967296,
+      "minimumDiskBytes": 5368709120,
+      "minimumCpuCores": 1,
+      "gpuRequired": false
+    },
+    "platforms": [
+      "linux-64"
+    ]
+  },
+  "tools": [
+    {
+      "name": "format_lefse_input",
+      "description": "Convert an abundance matrix with group metadata rows into the LEfSe input format.\nAbundance matrix (with class/subclass/subject rows) -> formatted LEfSe input file and plain-text table.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_path": {
+            "description": "Path to the tab-delimited abundance matrix with class/subclass/subject metadata rows, features on rows by default",
+            "type": "string"
+          },
+          "output_dir": {
+            "default": "",
+            "description": "Directory for the formatted LEfSe input; a fresh subdirectory is created",
+            "type": "string"
+          },
+          "class_row": {
+            "default": 1,
+            "description": "1-based row index used as class (default 1)",
+            "type": "integer"
+          },
+          "subclass_row": {
+            "default": 2,
+            "description": "1-based row index used as subclass; -1 or 0 disables it",
+            "type": "integer"
+          },
+          "subject_row": {
+            "default": 3,
+            "description": "1-based row index used as subject; -1 or 0 disables it",
+            "type": "integer"
+          },
+          "normalization": {
+            "default": -1.0,
+            "description": "Normalization value so each feature level sums to this value (-1 = no normalization)",
+            "type": "number"
+          },
+          "features_dir": {
+            "default": "r",
+            "description": "Features on rows (r, default) or columns (c)",
+            "enum": [
+              "r",
+              "c"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_path"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "name": "plot_lefse_cladogram",
+      "description": "Visualize LEfSe biomarkers on their hierarchical taxonomy tree as a cladogram.\nLEfSe result table (.res) -> cladogram image.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result_path": {
+            "description": "Path to the LEfSe result table (.res) from run_lefse_analysis",
+            "type": "string"
+          },
+          "output_dir": {
+            "default": "",
+            "description": "Directory for the cladogram; a fresh subdirectory is created",
+            "type": "string"
+          },
+          "format": {
+            "default": "png",
+            "description": "Output image format",
+            "enum": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "type": "string"
+          },
+          "dpi": {
+            "default": 72,
+            "description": "Image resolution in dots per inch (default 72)",
+            "type": "integer"
+          },
+          "title": {
+            "default": "Cladogram",
+            "description": "Plot title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result_path"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "name": "plot_lefse_lda",
+      "description": "Visualize LEfSe LDA effect-size scores as a bar chart.\nLEfSe result table (.res) -> LDA effect-size bar chart image.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result_path": {
+            "description": "Path to the LEfSe result table (.res) from run_lefse_analysis",
+            "type": "string"
+          },
+          "output_dir": {
+            "default": "",
+            "description": "Directory for the LDA bar chart; a fresh subdirectory is created",
+            "type": "string"
+          },
+          "format": {
+            "default": "png",
+            "description": "Output image format",
+            "enum": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "type": "string"
+          },
+          "dpi": {
+            "default": 72,
+            "description": "Image resolution in dots per inch (default 72)",
+            "type": "integer"
+          },
+          "title": {
+            "default": "",
+            "description": "Plot title",
+            "type": "string"
+          },
+          "orientation": {
+            "default": "h",
+            "description": "Horizontal (h, default) or vertical (v) bar chart",
+            "enum": [
+              "h",
+              "v"
+            ],
+            "type": "string"
+          },
+          "feature_font_size": {
+            "default": 7,
+            "description": "Font size for feature labels (default 7)",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "result_path"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "name": "run_full_lefse_workflow",
+      "description": "Run the complete LEfSe differential-feature workflow (format, analyze, plot).\nAbundance matrix with group rows -> result table, LDA effect-size chart and cladogram.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_path": {
+            "description": "Path to the tab-delimited abundance matrix with class/subclass/subject metadata rows (features on rows)",
+            "type": "string"
+          },
+          "output_dir": {
+            "default": "",
+            "description": "Directory for all workflow outputs; a fresh subdirectory is created",
+            "type": "string"
+          },
+          "class_row": {
+            "default": 1,
+            "description": "1-based row index used as class (default 1)",
+            "type": "integer"
+          },
+          "subclass_row": {
+            "default": 2,
+            "description": "1-based row index used as subclass; 0 disables it (default 2)",
+            "type": "integer"
+          },
+          "subject_row": {
+            "default": 3,
+            "description": "1-based row index used as subject; 0 disables it (default 3)",
+            "type": "integer"
+          },
+          "normalization": {
+            "default": -1.0,
+            "description": "Normalization value so each feature level sums to this value (-1 = no normalization)",
+            "type": "number"
+          },
+          "anova_alpha": {
+            "default": 0.05,
+            "description": "Alpha for the Kruskal-Wallis test (default 0.05)",
+            "type": "number"
+          },
+          "wilcoxon_alpha": {
+            "default": 0.05,
+            "description": "Alpha for the Wilcoxon test (default 0.05)",
+            "type": "number"
+          },
+          "lda_threshold": {
+            "default": 2.0,
+            "description": "Absolute log10 LDA score threshold (default 2.0)",
+            "type": "number"
+          },
+          "n_bootstrap": {
+            "default": 30,
+            "description": "Number of bootstrap iterations for LDA (default 30)",
+            "type": "integer"
+          },
+          "bootstrap_fraction": {
+            "default": 0.67,
+            "description": "Subsampling fraction per bootstrap iteration (default 0.67)",
+            "type": "number"
+          },
+          "min_samples_per_subclass": {
+            "default": 10,
+            "description": "Minimum samples per subclass for Wilcoxon (default 10)",
+            "type": "integer"
+          },
+          "multiclass_strategy": {
+            "default": 0,
+            "description": "0 = one-against-all, 1 = one-against-one",
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          },
+          "plot_format": {
+            "default": "png",
+            "description": "Image format for both figures",
+            "enum": [
+              "png",
+              "svg",
+              "pdf"
+            ],
+            "type": "string"
+          },
+          "timeout_seconds": {
+            "default": 1800,
+            "description": "Per-run wall-clock timeout in seconds",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_path"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    },
+    {
+      "name": "run_lefse_analysis",
+      "description": "Run LEfSe Kruskal-Wallis, Wilcoxon and LDA effect-size analysis.\nFormatted LEfSe input (.in) -> differential feature result table (.res) plus parsed records.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_path": {
+            "description": "Path to the formatted LEfSe input (.in pickled file from format_lefse_input)",
+            "type": "string"
+          },
+          "output_dir": {
+            "default": "",
+            "description": "Directory for the LEfSe result table; a fresh subdirectory is created",
+            "type": "string"
+          },
+          "anova_alpha": {
+            "default": 0.05,
+            "description": "Alpha for the Kruskal-Wallis (ANOVA) test (default 0.05)",
+            "type": "number"
+          },
+          "wilcoxon_alpha": {
+            "default": 0.05,
+            "description": "Alpha for the Wilcoxon test (default 0.05)",
+            "type": "number"
+          },
+          "lda_threshold": {
+            "default": 2.0,
+            "description": "Absolute log10 LDA score threshold for reporting (default 2.0)",
+            "type": "number"
+          },
+          "n_bootstrap": {
+            "default": 30,
+            "description": "Number of bootstrap iterations for LDA (default 30)",
+            "type": "integer"
+          },
+          "bootstrap_fraction": {
+            "default": 0.67,
+            "description": "Subsampling fraction per bootstrap iteration (default 0.67)",
+            "type": "number"
+          },
+          "min_samples_per_subclass": {
+            "default": 10,
+            "description": "Minimum samples per subclass for the Wilcoxon test (default 10)",
+            "type": "integer"
+          },
+          "multiclass_strategy": {
+            "default": 0,
+            "description": "0 = one-against-all, 1 = one-against-one (more strict)",
+            "enum": [
+              0,
+              1
+            ],
+            "type": "integer"
+          },
+          "rank_technique": {
+            "default": "lda",
+            "description": "Effect-size ranking: LDA (default) or SVM",
+            "enum": [
+              "lda",
+              "svm"
+            ],
+            "type": "string"
+          },
+          "run_wilcoxon": {
+            "default": true,
+            "description": "Perform the Wilcoxon step (default true)",
+            "type": "boolean"
+          },
+          "timeout_seconds": {
+            "default": 1200,
+            "description": "Per-run wall-clock timeout in seconds",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "input_path"
+        ]
+      },
+      "outputSchema": {
+        "additionalProperties": true,
+        "type": "object"
+      }
+    }
+  ],
+  "toolsSource": "MCP 实际工具目录",
+  "resources": [],
+  "prompts": [],
+  "reproduction": {
+    "question": "基于 LEfSe，分析不同组别间的差异微生物特征。输入为微生物丰度表和样本分组信息，可选提供亚组及受试者信息。输出差异特征结果表，包含特征名称、所属分类层级、富集组别、统计检验结果和 LDA 效应量，并生成 LDA 效应量柱状图及分类层级树图（cladogram）。支持配置显著性阈值、LDA 阈值和归一化参数。保留原始结果、参数、依赖版本及中文分析说明。使用官方小规模示例验证 MCP 与原 LEfSe 程序结果的一致性，优先采用 CPU 运行。",
+    "referenceSource": "未记录",
+    "datasets": [],
+    "steps": [],
+    "actualToolCalls": [],
+    "artifacts": [],
+    "criteria": [],
+    "environment": {}
+  },
+  "validation": {
+    "level": "tool_call",
+    "pipelineVerified": false,
+    "recordedAt": 1791032381.5335076,
+    "deliveryCalls": null,
+    "evidenceFiles": [
+      "reports/mcp-project-environment.json",
+      "reports/mcp-clean-environment.json"
+    ],
+    "note": "两份报告对应同一源码在两个独立私有环境的严格工具调用；不代表独立科学复现、最终发布包重建或报告资源读取已通过。",
+    "runtimeVerifications": [
+      {
+        "report": "reports/mcp-project-environment.json",
+        "verificationId": "ba223523adac464e9f624eae441d0a13",
+        "environmentId": "jobenv-31083348e13108ffb8620d7108bd1930bc02624c",
+        "reportSha256": "a0e35b81cf87ffffc57205e9c47f35def49c11aba73a7b02d6d1e43187e18ac9"
+      },
+      {
+        "report": "reports/mcp-clean-environment.json",
+        "verificationId": "daf16d22e0bd4131ad71ec7f77efe5ce",
+        "environmentId": "jobenv-7189f53d70126ea2fb048408a99276ccdd7e29c2",
+        "reportSha256": "63745659099a338151b03d9660f6a2c8a1cbe185b3466ade0a2ae6c6e4a32982"
+      }
+    ],
+    "verifiedSourceDigest": "bba456556ac1a40fe18396fc2553d39ea823b2eabbe060a586f64cb5989b1364",
+    "independentScientificVerification": "not asserted",
+    "finalPackageRebuild": "not asserted",
+    "resourceAttachment": "not asserted"
+  },
+  "limitations": [],
+  "reportResource": "paper2agent://delivery/report",
+  "jsonResource": "paper2agent://delivery/report.json"
+}

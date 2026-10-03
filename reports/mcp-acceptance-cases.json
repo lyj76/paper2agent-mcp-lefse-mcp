@@ -1,0 +1,109 @@
+[
+  {
+    "name": "format-official-example",
+    "tool": "format_lefse_input",
+    "arguments": {
+      "input_path": "resources/acceptance/hmp_aerobiosis_small.txt",
+      "output_dir": ".work/output/acceptance/format",
+      "class_row": 1,
+      "subclass_row": 2,
+      "subject_row": 3,
+      "normalization": 1000000.0
+    },
+    "required_inputs": ["input_path"],
+    "expected_subset": {"params": {"class_row": 1, "subclass_row": 2, "subject_row": 3, "normalization": 1000000.0}},
+    "min_artifacts": 2,
+    "unique_artifacts": true
+  },
+  {
+    "name": "run-official-example",
+    "tool": "run_lefse_analysis",
+    "arguments": {
+      "input_path": "resources/acceptance/hmp_aerobiosis_small.in",
+      "output_dir": ".work/output/acceptance/run",
+      "anova_alpha": 0.05,
+      "wilcoxon_alpha": 0.05,
+      "lda_threshold": 2.0,
+      "n_bootstrap": 30
+    },
+    "required_inputs": ["input_path"],
+    "expected_subset": {"params": {"anova_alpha": 0.05, "wilcoxon_alpha": 0.05, "lda_threshold": 2.0}},
+    "min_artifacts": 1,
+    "unique_artifacts": true
+  },
+  {
+    "name": "run-official-example-tighter-lda",
+    "tool": "run_lefse_analysis",
+    "arguments": {
+      "input_path": "resources/acceptance/hmp_aerobiosis_small.in",
+      "output_dir": ".work/output/acceptance/run2",
+      "anova_alpha": 0.03,
+      "wilcoxon_alpha": 0.03,
+      "lda_threshold": 3.0,
+      "n_bootstrap": 30
+    },
+    "required_inputs": ["input_path"],
+    "expected_subset": {"params": {"anova_alpha": 0.03, "lda_threshold": 3.0}},
+    "min_artifacts": 1,
+    "unique_artifacts": true
+  },
+  {
+    "name": "plot-lda-official-example",
+    "tool": "plot_lefse_lda",
+    "arguments": {
+      "result_path": "resources/acceptance/hmp_aerobiosis_small.res",
+      "output_dir": ".work/output/acceptance/plot1",
+      "format": "png"
+    },
+    "required_inputs": ["result_path"],
+    "min_artifacts": 1,
+    "unique_artifacts": true
+  },
+  {
+    "name": "plot-cladogram-official-example",
+    "tool": "plot_lefse_cladogram",
+    "arguments": {
+      "result_path": "resources/acceptance/hmp_aerobiosis_small.res",
+      "output_dir": ".work/output/acceptance/plot2",
+      "format": "png"
+    },
+    "required_inputs": ["result_path"],
+    "min_artifacts": 1,
+    "unique_artifacts": true
+  },
+  {
+    "name": "full-workflow-official-example",
+    "tool": "run_full_lefse_workflow",
+    "arguments": {
+      "input_path": "resources/acceptance/hmp_aerobiosis_small.txt",
+      "output_dir": ".work/output/acceptance/full",
+      "class_row": 1,
+      "subclass_row": 2,
+      "subject_row": 3,
+      "normalization": 1000000.0,
+      "anova_alpha": 0.05,
+      "wilcoxon_alpha": 0.05,
+      "lda_threshold": 2.0,
+      "n_bootstrap": 30,
+      "plot_format": "png"
+    },
+    "required_inputs": ["input_path"],
+    "expected_subset": {"params": {"class_row": 1, "subclass_row": 2, "subject_row": 3, "normalization": 1000000.0, "anova_alpha": 0.05}},
+    "min_artifacts": 5,
+    "unique_artifacts": true
+  },
+  {
+    "name": "error-missing-input-format",
+    "tool": "format_lefse_input",
+    "arguments": {"input_path": "resources/acceptance/does-not-exist.txt"},
+    "required_inputs": ["input_path"],
+    "error_contains": "Input file not found"
+  },
+  {
+    "name": "error-missing-input-run",
+    "tool": "run_lefse_analysis",
+    "arguments": {"input_path": "resources/acceptance/does-not-exist.in"},
+    "required_inputs": ["input_path"],
+    "error_contains": "Formatted input not found"
+  }
+]

@@ -1,12 +1,15 @@
 {
   "mcp_id": "45ef019b-d6be-4ecf-a6c5-78a309dcd4a1",
   "title": "45ef019b-d6be-4ecf-a6c5-78a309dcd4a1",
-  "version": "p2a-eb994703bb18",
-  "artifact_sha256": "eb994703bb1837ef868249369451c4ec130944c8c0650ebd49227d18d13870ec",
+  "version": "p2a-eed5248deb9e",
+  "artifact_sha256": "eed5248deb9e9da245a2cf2524271d6910c8bf3780ac0eccfb7e2fa42c19a01b",
   "files": [
+    ".paper2agent-documentation-revision.json",
     ".paper2agent-publication.json",
     "README.md",
     "USAGE.md",
+    "docs/original-documentation/README.md",
+    "docs/original-documentation/mcp-report.json",
     "mcp-report.json",
     "paper2agent-mcp.json",
     "pixi.lock",

@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "language": "zh-CN",
-  "title": "LEfSe 差异微生物分析 MCP",
-  "summary": "分析不同组别的差异微生物特征，输出分类层级、富集组、Kruskal–Wallis p 值和 LDA 效应量，并生成 LDA 柱状图与分类层级图。",
+  "title": "LEfSe 差异微生物特征分析 MCP（Paper2MCP 转换）",
+  "summary": "基于 LEfSe 分析不同组别间的差异微生物特征，返回差异特征结果表（特征名、分类层级、富集组、统计检验 p 值与 LDA 效应量）并生成 LDA 效应量柱状图与分层进化树图（cladogram）",
   "scope": {
-    "primaryTask": "分析不同组别的差异微生物特征，输出分类层级、富集组、Kruskal–Wallis p 值和 LDA 效应量，并生成 LDA 柱状图与分类层级图。",
+    "primaryTask": "基于 LEfSe 分析不同组别间的差异微生物特征，返回差异特征结果表（特征名、分类层级、富集组、统计检验 p 值与 LDA 效应量）并生成 LDA 效应量柱状图与分层进化树图（cladogram）",
     "workflows": [
       "lefse_diff_feature_analysis"
     ],
     "requiredOutputs": [
-      "差异结果表：特征、分类层级、富集组、Kruskal–Wallis p 值、LDA 效应量；Wilcoxon用于筛选，不逐项输出其p值。",
+      "差异特征结果表（含特征名、分类层级、富集组别、Kruskal-Wallis/Wilcoxon p 值、LDA 效应量）",
       "LDA 效应量柱状图（PNG）",
       "分类层级树图 cladogram（PNG）",
       "分析参数与依赖版本记录",
@@ -25,8 +25,7 @@
       "lefse/lefse_plot_res.py",
       "lefse/lefse_plot_cladogram.py",
       "example/bioconda-lefse_run.sh"
-    ],
-    "commit": "ff93a8b6a4bf12420cfcb99c67786dee80d388d2"
+    ]
   },
   "runtime": {
     "type": "pixi-fastmcp",
@@ -64,113 +63,12 @@
     },
     "platforms": [
       "linux-64"
-    ],
-    "declaredDependencies": [
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "python",
-        "constraint": "3.11.*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "numpy",
-        "constraint": ">=1.24,<2"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "scipy",
-        "constraint": ">=1.10"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "matplotlib",
-        "constraint": ">=3.7"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-base",
-        "constraint": ">=4.2"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-survival",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-mvtnorm",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-modeltools",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-coin",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-mass",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "r-matrix",
-        "constraint": "*"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "rpy2",
-        "constraint": ">=3.5"
-      },
-      {
-        "feature": "server",
-        "manager": "conda",
-        "name": "biom-format",
-        "constraint": ">=2.1.12"
-      },
-      {
-        "feature": "server",
-        "manager": "pypi",
-        "name": "fastmcp",
-        "constraint": {
-          "version": "==4.0.3"
-        }
-      },
-      {
-        "feature": "server",
-        "manager": "pypi",
-        "name": "pytest",
-        "constraint": ">=7"
-      },
-      {
-        "feature": "server",
-        "manager": "pypi",
-        "name": "pytest-asyncio",
-        "constraint": ">=0.23"
-      }
-    ],
-    "lockSha256": "2d5cbd75220095426f653a62cd8f5a008f92794eff9533c3b20c190732db1dc6"
+    ]
   },
   "tools": [
     {
       "name": "format_lefse_input",
-      "description": "将含分组信息的丰度表转换为 LEfSe 输入，并保存规范化表。",
+      "description": "Convert an abundance matrix with group metadata rows into the LEfSe input format.\nAbundance matrix (with class/subclass/subject rows) -> formatted LEfSe input file and plain-text table.",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -225,7 +123,7 @@
     },
     {
       "name": "plot_lefse_cladogram",
-      "description": "读取分类层级与差异结果，绘制分类层级图（cladogram）。",
+      "description": "Visualize LEfSe biomarkers on their hierarchical taxonomy tree as a cladogram.\nLEfSe result table (.res) -> cladogram image.",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -271,7 +169,7 @@
     },
     {
       "name": "plot_lefse_lda",
-      "description": "读取 LEfSe 结果，绘制按富集组着色的 LDA 效应量柱状图。",
+      "description": "Visualize LEfSe LDA effect-size scores as a bar chart.\nLEfSe result table (.res) -> LDA effect-size bar chart image.",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -331,7 +229,7 @@
     },
     {
       "name": "run_full_lefse_workflow",
-      "description": "依次完成输入格式化、差异分析和两种图表绘制，并返回结果、参数与文件路径。",
+      "description": "Run the complete LEfSe differential-feature workflow (format, analyze, plot).\nAbundance matrix with group rows -> result table, LDA effect-size chart and cladogram.",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -431,7 +329,7 @@
     },
     {
       "name": "run_lefse_analysis",
-      "description": "调用原 LEfSe 执行 Kruskal–Wallis/Wilcoxon 筛选及 LDA 分析，返回原始结果表和结构化结果。",
+      "description": "Run LEfSe Kruskal-Wallis, Wilcoxon and LDA effect-size analysis.\nFormatted LEfSe input (.in) -> differential feature result table (.res) plus parsed records.",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -518,130 +416,45 @@
   "resources": [],
   "prompts": [],
   "reproduction": {
-    "question": "使用 LEfSe 分析不同组别间的差异微生物特征。输入为官方 HMP aerobiosis 小规模示例丰度矩阵（resources/acceptance/hmp_aerobiosis_small.txt，SHA-256 93de04b7…462e），class/subclass/subject 行号 1/2/3，归一化 1000000；请完成格式转换、Kruskal-Wallis/Wilcoxon 与 LDA 效应量分析、LDA 柱状图与 cladogram，返回差异特征结果表与两张图。",
-    "referenceSource": "example/bioconda-lefse_run.sh",
-    "datasets": [
-      {
-        "name": "HMP aerobiosis small (official LEfSe example)",
-        "source": "biobakery test_suite data/lefse/input/hmp_small_aerobiosis.txt (referenced by repo/example/bioconda-lefse_run.sh)",
-        "sha256": "93de04b731427f5da7f9b113189d12fca0b64108a69968b6015ad68dd4ee462e",
-        "license": "官方 LEfSe/HMP 测试数据集；本任务未独立确认额外 license 声明"
-      }
-    ],
-    "steps": [
-      "将下载包解压并在项目根目录执行 pixi install --locked --manifest-path pixi.toml。",
-      "启动 MCP：pixi run --manifest-path pixi.toml -e server python server.py。",
-      "调用 run_full_lefse_workflow，input_path=resources/acceptance/hmp_aerobiosis_small.txt，class_row=1，subclass_row=2，subject_row=3，normalization=1000000，anova_alpha=0.05，wilcoxon_alpha=0.05，lda_threshold=2。",
-      "检查 result_table 和 significance_summary；本次示例1091个特征、51个达到LDA阈值（High_O2=13、Low_O2=34、Mid_O2=4）。",
-      "读取返回 artifacts 的 lefse.res、lda_effect_size.png 和 cladogram.png。文件保存在当前运行环境 .work/output 下，每次调用使用独立子目录。",
-      "分步调用 format_lefse_input → run_lefse_analysis → plot_lefse_lda/plot_lefse_cladogram 可复用同一分析链。"
-    ],
-    "actualToolCalls": [
-      "run_full_lefse_workflow",
-      "format_lefse_input",
-      "run_lefse_analysis",
-      "plot_lefse_lda",
-      "plot_lefse_cladogram"
-    ],
-    "artifacts": [
-      "resources/acceptance/hmp_aerobiosis_small.txt",
-      "resources/acceptance/hmp_aerobiosis_small.res",
-      ".work/output/（每次工具调用返回实际子目录与路径）"
-    ],
-    "criteria": [
-      {
-        "name": "workflow_end_to_end",
-        "expected": "run_full_lefse_workflow 在官方示例上完成 格式化→统计→绘图 并返回 significance_summary 与 >=5 artifacts",
-        "observed": "run_full_lefse_workflow 返回 total_tested=1091、significant_at_lda_threshold=51，artifacts=5（formatted.in、lefse.res、lda_effect_size.png、cladogram.png、formatted_table.txt）",
-        "passed": true
-      },
-      {
-        "name": "reference_numeric_agreement",
-        "expected": "总测试特征数与显著特征数与上游参考一致（1091/51）",
-        "observed": "result_table 共 1091 行、51 行 lda_score 非空；与参考 resources/acceptance/hmp_aerobiosis_small.res 的 1091 行完全一致，显著行 feature/富集组/LDA/p 值 0 失配",
-        "passed": true
-      },
-      {
-        "name": "figure_types",
-        "expected": "同时生成 LDA 效应量柱状图与分类层级树图 cladogram（PNG）",
-        "observed": "5 个 artifact 含 lda_effect_size.png 与 cladogram.png；plot_lefse_lda 与 plot_lefse_cladogram 组合调用均返回 PNG",
-        "passed": true
-      },
-      {
-        "name": "composition_and_plots",
-        "expected": "format_lefse_input -> run_lefse_analysis -> plot_lefse_lda/plot_lefse_cladogram 可组合执行",
-        "observed": "组合调用成功：format 返回 2 artifacts；run 返回 1091 行 result_table；两个 plot 工具分别返回 PNG artifact",
-        "passed": true
-      },
-      {
-        "name": "prompt_and_resources",
-        "expected": "至少一个 workflow prompt 与可读 resource，prompt 引用真实工具名",
-        "observed": "prompt lefse_diff_feature_analysis 渲染成功并引用 format_lefse_input/run_lefse_analysis/plot_lefse_lda/plot_lefse_cladogram/run_full_lefse_workflow；resources lefse://method/README、input-format、output-format 均可读取且非空",
-        "passed": true
-      }
-    ],
-    "environment": {
-      "python": "3.11.16",
-      "fastmcp": "4.0.3",
-      "numpy": "1.26.4",
-      "scipy": "1.17.1",
-      "matplotlib": "3.11.2",
-      "rpy2": "3.6.8",
-      "R": "4.5.3",
-      "biom-format": "2.1.17",
-      "random_seed": "LEfSe 上游固定 seed 1982（lrand.seed(1982)，见 repo/lefse/lefse.py init()）",
-      "params": {
-        "class_row": 1,
-        "subclass_row": 2,
-        "subject_row": 3,
-        "normalization": 1000000.0,
-        "anova_alpha": 0.05,
-        "wilcoxon_alpha": 0.05,
-        "lda_threshold": 2.0
-      }
-    }
+    "question": "基于 LEfSe，分析不同组别间的差异微生物特征。输入为微生物丰度表和样本分组信息，可选提供亚组及受试者信息。输出差异特征结果表，包含特征名称、所属分类层级、富集组别、统计检验结果和 LDA 效应量，并生成 LDA 效应量柱状图及分类层级树图（cladogram）。支持配置显著性阈值、LDA 阈值和归一化参数。保留原始结果、参数、依赖版本及中文分析说明。使用官方小规模示例验证 MCP 与原 LEfSe 程序结果的一致性，优先采用 CPU 运行。",
+    "referenceSource": "未记录",
+    "datasets": [],
+    "steps": [],
+    "actualToolCalls": [],
+    "artifacts": [],
+    "criteria": [],
+    "environment": {}
   },
   "validation": {
-    "level": "workflow",
-    "pipelineVerified": true,
-    "recordedAt": 1791036998.1155171,
-    "deliveryCalls": 8,
+    "level": "tool_call",
+    "pipelineVerified": false,
+    "recordedAt": 1791032381.5335076,
+    "deliveryCalls": null,
     "evidenceFiles": [
-      "reports/studio-quality.json",
-      "reports/delivery-validation.json",
-      "reports/expected-mcp-tools.json",
-      "reports/mcp-acceptance-cases.json"
+      "reports/mcp-project-environment.json",
+      "reports/mcp-clean-environment.json"
     ],
-    "note": "仅描述本次记录的验证范围；协议可用不等于科学结果正确，发布不强制测试。",
-    "documentRevision": {
-      "kind": "post-completion-documentation",
-      "originalReportSha256": "a0ea477a56d3afc132cb2b0b56582a738a9925ec7501eb0f1fb0b16b8d8d4de3",
-      "sourceCodeChanged": false,
-      "verifiedRuntimeChanged": false,
-      "originalArchiveChanged": false,
-      "evidence": "completed delivery and studio-quality records; numeric table independently compared 1091/1091 exact rows"
-    }
+    "note": "两份报告对应同一源码在两个独立私有环境的严格工具调用；不代表独立科学复现、最终发布包重建或报告资源读取已通过。",
+    "runtimeVerifications": [
+      {
+        "report": "reports/mcp-project-environment.json",
+        "verificationId": "ba223523adac464e9f624eae441d0a13",
+        "environmentId": "jobenv-31083348e13108ffb8620d7108bd1930bc02624c",
+        "reportSha256": "a0e35b81cf87ffffc57205e9c47f35def49c11aba73a7b02d6d1e43187e18ac9"
+      },
+      {
+        "report": "reports/mcp-clean-environment.json",
+        "verificationId": "daf16d22e0bd4131ad71ec7f77efe5ce",
+        "environmentId": "jobenv-7189f53d70126ea2fb048408a99276ccdd7e29c2",
+        "reportSha256": "63745659099a338151b03d9660f6a2c8a1cbe185b3466ade0a2ae6c6e4a32982"
+      }
+    ],
+    "verifiedSourceDigest": "bba456556ac1a40fe18396fc2553d39ea823b2eabbe060a586f64cb5989b1364",
+    "independentScientificVerification": "not asserted",
+    "finalPackageRebuild": "not asserted",
+    "resourceAttachment": "not asserted"
   },
-  "limitations": [
-    {
-      "name": "artifact_content_only_via_returned_paths",
-      "observed": "交付私有环境的 .work/output 无草稿侧读权限，图/表内容以 MCP 工具返回的权威 artifact 路径为证据，未在评测端二次打开二进制校验",
-      "passed": false
-    },
-    {
-      "name": "svm_rank_limited",
-      "observed": "LEfSe 上游 test_svm 未实现（返回 None）；rank_technique='svm' 仅保留参数，MCP 验证只覆盖 lda 路径",
-      "passed": false
-    },
-    {
-      "name": "pvalue_output_contract",
-      "observed": "结果字段 kruskal_wallace_pvalue 来自上游KW p值（字段拼写沿用当前工具）；Wilcoxon筛选已执行，但没有输出逐比较Wilcoxon p值。不得把KW p值解释为Wilcoxon p值。"
-    },
-    {
-      "name": "scope_and_figures",
-      "observed": "数值一致性已在这一份官方示例上确认，不表示所有研究数据均已验证。默认图较拥挤、字体偏小，正式论文应调整尺寸与DPI。"
-    }
-  ],
+  "limitations": [],
   "reportResource": "paper2agent://delivery/report",
   "jsonResource": "paper2agent://delivery/report.json"
 }

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "mcpId": "45ef019b-d6be-4ecf-a6c5-78a309dcd4a1",
+  "kind": "documentation-only",
+  "originalArchiveSha256": "eb994703bb1837ef868249369451c4ec130944c8c0650ebd49227d18d13870ec",
+  "documents": {
+    "README.md": {
+      "previousSha256": "d9ff091d8a487b7f9f5a012171620d8210982bc1c2d0a0c6d6ee5db8bdfad788",
+      "replacementSha256": "420d77602f11aa9bfbe8ce640b09af161f8f1f6b74598e04cae479c73f9150e5"
+    },
+    "mcp-report.json": {
+      "previousSha256": "a0ea477a56d3afc132cb2b0b56582a738a9925ec7501eb0f1fb0b16b8d8d4de3",
+      "replacementSha256": "95ade57c630eb312e2b8d030b4a7222ec774042e035ebf9171e20f1a56f3a102"
+    }
+  },
+  "codeAndDependencyFilesChanged": false,
+  "note": "原验收证据针对原版本；此包仅修订文档，未声称重新验收。"
+}

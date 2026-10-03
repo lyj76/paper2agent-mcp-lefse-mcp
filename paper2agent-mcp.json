@@ -1,10 +1,12 @@
 {
   "schemaVersion": 2,
   "runtime": "pixi-fastmcp",
-  "platforms": ["linux-64"],
+  "platforms": [
+    "linux-64"
+  ],
   "entrypoint": {
     "environment": "server",
-    "path": "server.py"
+    "path": "paper2agent_usage_entry.py"
   },
   "resources": {
     "minimumMemoryBytes": 1073741824,
@@ -25,10 +27,23 @@
         "purpose": "LEfSe MCP 服务（命令行封装 + FastMCP）",
         "probes": [
           {
-            "pythonImports": ["fastmcp", "numpy", "scipy", "matplotlib"]
+            "pythonImports": [
+              "fastmcp",
+              "numpy",
+              "scipy",
+              "matplotlib"
+            ]
           }
         ]
       }
     ]
+  },
+  "usageRevision": {
+    "schemaVersion": 1,
+    "kind": "interface-metadata-only",
+    "originalEntrypoint": "server.py",
+    "scientificSourceChanged": false,
+    "dependencyFilesChanged": false,
+    "newScientificValidationClaimed": false
   }
 }

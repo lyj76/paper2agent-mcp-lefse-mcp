@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "tools": {
+    "format_lefse_input": {
+      "description": "用途：把含分组元数据的丰度表格式化为LEfSe输入。输入前提：先识别真实分组行、特征方向及丰度尺度。推荐调用：相对丰度需核对normalization，默认-1不归一化，官方样例使用1000000。输出含义：格式化文件与数值表。注意事项：先读lefse://method/usage并参考lefse_diff_feature_analysis；不反复试参把空表当生物学结论。",
+      "parameters": {
+        "input_path": "本次实际上传的制表符分隔丰度表路径；先读取内容确认方向与分组行，不猜文件路径。",
+        "class_row": "主要分组所在行，1起算；默认1。先确认该行确实代表用户比较的分组。",
+        "subclass_row": "亚组所在行，1起算；默认2。仅有真实亚组行时使用；0或-1关闭角色不会删除输入中的字符串行，须先保证剩余特征为数值。",
+        "subject_row": "受试者所在行，1起算；默认3。仅有真实受试者行时使用；0或-1关闭角色不会删除输入中的字符串行。",
+        "normalization": "格式化时每个丰度层级的目标总量；默认-1=不归一化。先判断数据尺度。官方相对丰度示例使用1000000，LDA阈值2与该参考尺度共同解释；不是所有数据的强制值。此参数仅在format_lefse_input/run_full_lefse_workflow中存在。"
+      }
+    },
+    "run_full_lefse_workflow": {
+      "description": "用途：完成LEfSe格式化、差异分析、LDA柱状图及分类层级图。输入前提：先识别真实分组行、特征方向及丰度尺度。推荐调用：相对丰度需核对normalization，默认-1不归一化，官方样例使用1000000。输出含义：格式化文件、全部测试结果和图表；全部结果行不等于显著行。注意事项：先读lefse://method/usage并参考lefse_diff_feature_analysis；不反复试参把空表当生物学结论。",
+      "parameters": {
+        "input_path": "本次实际上传的制表符分隔丰度表路径；先读取内容确认方向与分组行，不猜文件路径。",
+        "class_row": "主要分组所在行，1起算；默认1。先确认该行确实代表用户比较的分组。",
+        "subclass_row": "亚组所在行，1起算；默认2。仅有真实亚组行时使用；0或-1关闭角色不会删除输入中的字符串行，须先保证剩余特征为数值。",
+        "subject_row": "受试者所在行，1起算；默认3。仅有真实受试者行时使用；0或-1关闭角色不会删除输入中的字符串行。",
+        "normalization": "格式化时每个丰度层级的目标总量；默认-1=不归一化。先判断数据尺度。官方相对丰度示例使用1000000，LDA阈值2与该参考尺度共同解释；不是所有数据的强制值。此参数仅在format_lefse_input/run_full_lefse_workflow中存在。"
+      }
+    },
+    "run_lefse_analysis": {
+      "description": "用途：对format_lefse_input产生的LEfSe输入执行KW/Wilcoxon筛选与LDA。输入前提：格式化阶段已选定正确分组和尺度；本工具无normalization参数。推荐调用：沿用有出处的统计阈值。输出含义：结果表可含未通过筛选的特征；kruskal_wallace_pvalue是KW p值，不是Wilcoxon p值。注意事项：零结果先核对预处理，见lefse://method/usage。",
+      "parameters": {}
+    },
+    "plot_lefse_lda": {
+      "description": "用途：绘制LDA效应量柱状图。输入前提：实际LEfSe结果文件。推荐调用：分析完成后使用工具返回的权威路径。输出含义：图显示通过筛选的差异特征，空图不是无生物学差异的证明。注意事项：先核对筛选结果及尺度，见lefse://method/usage。",
+      "parameters": {}
+    },
+    "plot_lefse_cladogram": {
+      "description": "用途：绘制分类层级图cladogram。输入前提：实际LEfSe结果文件。推荐调用：分析完成后使用工具返回的权威路径。输出含义：图显示通过筛选的差异特征，空图不是无生物学差异的证明。注意事项：先核对筛选结果及尺度，见lefse://method/usage。",
+      "parameters": {}
+    }
+  },
+  "resources": {
+    "lefse://method/usage": {
+      "name": "LEfSe 输入、工作流与结果解释",
+      "text": "输入识别与前提\n先读取用户实际上传的制表符分隔丰度表，确认特征按行、样本按列及分组行含义，不能猜路径。官方 hmp_aerobiosis_small.txt 的第1行是 oxygen（class），第2行 body_site（subclass），第3行 subject；这不是任意数据的固定行号。用户只需给出目标，Agent 根据输入确定参数，信息不清才询问。\n\n数据尺度与预处理\nformat_lefse_input 与 run_full_lefse_workflow 的 normalization 默认 -1，表示完全不归一化，并非推荐所有数据保持默认。相对丰度在0到1范围时，参考LEfSe流程通常先按丰度层级归一化到1000000，再解释LDA阈值2；先核对数据尺度与方法，勿把所有计数、已归一化数据硬套同一尺度。normalization不属于run_lefse_analysis。class_row/subclass_row/subject_row按1起算；关闭subclass/subject角色不会自动删除其原始字符串行，需准备合法纯数值特征矩阵，不能反复切换角色赌结果。\n\n推荐工具顺序\n已识别合法输入时用run_full_lefse_workflow完成格式化、分析和绘图；分步为format_lefse_input -> run_lefse_analysis -> plot_lefse_lda与plot_lefse_cladogram。只使用tools/list公布的参数名，不存在className。输出目录用用户任务授权的实际目录，各工具会创建新子目录。\n\n参考流程与出处\n上游https://github.com/SegataLab/lefse，commit ff93a8b6a4bf12420cfcb99c67786dee80d388d2，参考example/bioconda-lefse_run.sh及格式化/分析源码。本次官方hmp_aerobiosis_small.txt SHA256 93de04b731427f5da7f9b113189d12fca0b64108a69968b6015ad68dd4ee462e，55个样本。实测class_row=1、subclass_row=2、subject_row=3、normalization=1000000、anova_alpha=0.05、wilcoxon_alpha=0.05、lda_threshold=2、n_bootstrap=30、bootstrap_fraction=0.67、min_samples_per_subclass=10、multiclass_strategy=0，1091条测试结果中51条通过LDA筛选（High13、Low34、Mid4）。仅为这份样例的参考，不要求用户数据得到51条。\n\n零结果和报错排查\n先查输入元数据、数值范围、格式化时实际normalization、真实调用参数与参考流程；0条显著结果可能合理，也可能来自尺度/预处理不匹配。不要只反复降低LDA阈值、禁用Wilcoxon或增大min_samples_per_subclass。could not convert string to float表示非数值元数据可能被当成特征，先修输入契约。缺字段不能据此断言某个检验未执行。不读取私有MCP源码目录绕过研究权限，方法资源已提供必要解释。\n\n结果解释与局限\n.res可包含全部测试特征，不是每行都显著；enriched_class与lda_effect_size缺失的行未通过筛选。当前kruskal_wallace_pvalue字段是KW的p值，不是逐比较Wilcoxon p值；工具没有返回逐比较Wilcoxon p值。空表不能直接证明生物学无差异。body_site与oxygen分组可能混杂，需作为关联解释局限，不能凭它确定零结果原因或作因果断言。程序完成不等于科学解释正确；报告实际预处理、参数、结果与不确定性。\n"
+    },
+    "lefse://method/input-format": {
+      "name": "LEfSe 输入契约",
+      "text": "输入识别与前提\n先读取用户实际上传的制表符分隔丰度表，确认特征按行、样本按列及分组行含义，不能猜路径。官方 hmp_aerobiosis_small.txt 的第1行是 oxygen（class），第2行 body_site（subclass），第3行 subject；这不是任意数据的固定行号。用户只需给出目标，Agent 根据输入确定参数，信息不清才询问。\n\n数据尺度与预处理\nformat_lefse_input 与 run_full_lefse_workflow 的 normalization 默认 -1，表示完全不归一化，并非推荐所有数据保持默认。相对丰度在0到1范围时，参考LEfSe流程通常先按丰度层级归一化到1000000，再解释LDA阈值2；先核对数据尺度与方法，勿把所有计数、已归一化数据硬套同一尺度。normalization不属于run_lefse_analysis。class_row/subclass_row/subject_row按1起算；关闭subclass/subject角色不会自动删除其原始字符串行，需准备合法纯数值特征矩阵，不能反复切换角色赌结果。\n\n"
+    },
+    "lefse://method/output-format": {
+      "name": "LEfSe 输出含义",
+      "text": "\n.res可包含全部测试特征，不是每行都显著；enriched_class与lda_effect_size缺失的行未通过筛选。当前kruskal_wallace_pvalue字段是KW的p值，不是逐比较Wilcoxon p值；工具没有返回逐比较Wilcoxon p值。空表不能直接证明生物学无差异。body_site与oxygen分组可能混杂，需作为关联解释局限，不能凭它确定零结果原因或作因果断言。程序完成不等于科学解释正确；报告实际预处理、参数、结果与不确定性。\n"
+    }
+  },
+  "prompts": {
+    "lefse_diff_feature_analysis": {
+      "description": "先识别用户输入与尺度，再调用LEfSe；包含参考流程、零结果排查与解释局限。",
+      "text": "目标：根据用户自然语言研究要求和上传数据分析组间差异微生物，生成结果表、LDA图及分类层级图。\n\n输入识别与前提\n先读取用户实际上传的制表符分隔丰度表，确认特征按行、样本按列及分组行含义，不能猜路径。官方 hmp_aerobiosis_small.txt 的第1行是 oxygen（class），第2行 body_site（subclass），第3行 subject；这不是任意数据的固定行号。用户只需给出目标，Agent 根据输入确定参数，信息不清才询问。\n\n数据尺度与预处理\nformat_lefse_input 与 run_full_lefse_workflow 的 normalization 默认 -1，表示完全不归一化，并非推荐所有数据保持默认。相对丰度在0到1范围时，参考LEfSe流程通常先按丰度层级归一化到1000000，再解释LDA阈值2；先核对数据尺度与方法，勿把所有计数、已归一化数据硬套同一尺度。normalization不属于run_lefse_analysis。class_row/subclass_row/subject_row按1起算；关闭subclass/subject角色不会自动删除其原始字符串行，需准备合法纯数值特征矩阵，不能反复切换角色赌结果。\n\n推荐工具顺序\n已识别合法输入时用run_full_lefse_workflow完成格式化、分析和绘图；分步为format_lefse_input -> run_lefse_analysis -> plot_lefse_lda与plot_lefse_cladogram。只使用tools/list公布的参数名，不存在className。输出目录用用户任务授权的实际目录，各工具会创建新子目录。\n\n参考流程与出处\n上游https://github.com/SegataLab/lefse，commit ff93a8b6a4bf12420cfcb99c67786dee80d388d2，参考example/bioconda-lefse_run.sh及格式化/分析源码。本次官方hmp_aerobiosis_small.txt SHA256 93de04b731427f5da7f9b113189d12fca0b64108a69968b6015ad68dd4ee462e，55个样本。实测class_row=1、subclass_row=2、subject_row=3、normalization=1000000、anova_alpha=0.05、wilcoxon_alpha=0.05、lda_threshold=2、n_bootstrap=30、bootstrap_fraction=0.67、min_samples_per_subclass=10、multiclass_strategy=0，1091条测试结果中51条通过LDA筛选（High13、Low34、Mid4）。仅为这份样例的参考，不要求用户数据得到51条。\n\n零结果和报错排查\n先查输入元数据、数值范围、格式化时实际normalization、真实调用参数与参考流程；0条显著结果可能合理，也可能来自尺度/预处理不匹配。不要只反复降低LDA阈值、禁用Wilcoxon或增大min_samples_per_subclass。could not convert string to float表示非数值元数据可能被当成特征，先修输入契约。缺字段不能据此断言某个检验未执行。不读取私有MCP源码目录绕过研究权限，方法资源已提供必要解释。\n\n结果解释与局限\n.res可包含全部测试特征，不是每行都显著；enriched_class与lda_effect_size缺失的行未通过筛选。当前kruskal_wallace_pvalue字段是KW的p值，不是逐比较Wilcoxon p值；工具没有返回逐比较Wilcoxon p值。空表不能直接证明生物学无差异。body_site与oxygen分组可能混杂，需作为关联解释局限，不能凭它确定零结果原因或作因果断言。程序完成不等于科学解释正确；报告实际预处理、参数、结果与不确定性。\n"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "kind": "interface-metadata-only",
+  "originalEntrypoint": "server.py",
+  "scientificSourceChanged": false,
+  "dependencyFilesChanged": false,
+  "newScientificValidationClaimed": false
+}
